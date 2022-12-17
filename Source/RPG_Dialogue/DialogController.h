@@ -22,6 +22,8 @@ protected:
 	UFUNCTION()
 	void TestFunction();
 
+	void StartDialog(int ID);
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -40,5 +42,8 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Properties", meta = (AllowPrivateAccess = "true"))
 	FTimerHandle TimeoutTimer;
+
+public:
+	FORCEINLINE UWidgetComponent* GetDialogWidget() const { return DialogUIWidget; }
 
 };

@@ -8,6 +8,13 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 
+#include "Talkable_NPC.h"
+#include "DialogController.h"
+
+#include "Kismet/GameplayStatics.h"
+#include "Components/WidgetComponent.h"
+
+
 //////////////////////////////////////////////////////////////////////////
 // ARPG_DialogueCharacter
 
@@ -49,6 +56,13 @@ ARPG_DialogueCharacter::ARPG_DialogueCharacter()
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+}
+
+void ARPG_DialogueCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	TraceForInteractables();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -126,4 +140,105 @@ void ARPG_DialogueCharacter::MoveRight(float Value)
 		// add movement in that direction
 		AddMovementInput(Direction, Value);
 	}
+}
+
+void ARPG_DialogueCharacter::IncrementOverlappedInteractablesCount(int8 Value)
+{
+	if (OverlappedInteractablesCount + Value <= 0) {
+		OverlappedInteractablesCount = 0;
+		bShouldTraceForInteractables = false;
+	}
+	else {
+		OverlappedInteractablesCount += Value;
+		bShouldTraceForInteractables = true;
+	}
+}
+
+void ARPG_DialogueCharacter::TraceForInteractables()
+{
+	if (bShouldTraceForInteractables) {
+		FHitResult TraceResult;
+		FVector HitLocation;
+		TraceFromCharacter(TraceResult, HitLocation);
+
+		if (TraceResult.bBlockingHit) {
+			ATalkable_NPC* HitInteractable = Cast<ATalkable_NPC>(TraceResult.GetActor());
+			if (HitInteractable /* && HitInteractable->GetPickupWidget()*/) {
+				UE_LOG(LogTemp, Warning, TEXT("Hit an interactable, %d, %d"), OverlappedInteractablesCount, bShouldTraceForInteractables);
+				//HitInteractable->GetWidget()->SetVisibility(true);
+				//if (CharacterDialogController) {
+					//CharacterDialogController->GetDialogWidget()->SetVisibility(true);
+				//}
+			}
+
+			
+			// We hit an Interactable last frame
+			if (TraceHitInteractableLastFrame) {
+				if (HitInteractable != TraceHitInteractableLastFrame) {
+					// We are hitting a different Interactable this frame from last frame, or Interactable is null
+					//TraceHitInteractableLastFrame->GetWidget()->SetVisibility(false);
+				}
+			}
+			// Store reference to HitItem for next frame
+			TraceHitInteractableLastFrame = HitInteractable;
+		}
+
+	} else if (TraceHitInteractableLastFrame) {
+		//
+	}
+}
+
+bool ARPG_DialogueCharacter::TraceFromViewport(FHitResult& OutHitResult, FVector& OutHitLocation)
+{
+	// Get size of viewport
+	FVector2D ViewportSize;
+	if (GEngine && GEngine->GameViewport) {
+		GEngine->GameViewport->GetViewportSize(ViewportSize);
+	}
+
+	// Get location of center of screen
+	FVector2D CenterLocationOnScreen(ViewportSize.X / 2.f, ViewportSize.Y / 2.f);
+	FVector CenterScreenWorldPosition;
+	FVector CenterScreenWorldDirection;
+
+	// Project Screen to World
+	bool bScreenToWorld = UGameplayStatics::DeprojectScreenToWorld(UGameplayStatics::GetPlayerController(this, 0),
+		CenterLocationOnScreen,
+		CenterScreenWorldPosition,
+		CenterScreenWorldDirection);
+
+	if (bScreenToWorld) {
+		// Trace from Crosshair world location outward
+		const FVector Start{ CenterScreenWorldPosition };
+		const FVector End{ Start + CenterScreenWorldDirection * 500.f };
+		OutHitLocation = End;
+		GetWorld()->LineTraceSingleByChannel(OutHitResult, Start, End, ECollisionChannel::ECC_Visibility);
+
+		if (OutHitResult.bBlockingHit) {
+			OutHitLocation = OutHitResult.Location;
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool ARPG_DialogueCharacter::TraceFromCharacter(FHitResult& OutHitResult, FVector& OutHitLocation)
+{	
+	FVector CharacterLocation = GetActorLocation();
+	FVector CharacterForwardDirection =  GetActorForwardVector();
+
+	FVector Start = CharacterLocation;
+	FVector End = Start + CharacterForwardDirection * 500.f;
+
+	GetWorld()->LineTraceSingleByChannel(OutHitResult, Start, End, ECollisionChannel::ECC_Visibility);
+	DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 0.5f);
+	//UE_LOG(LogTemp, Warning, TEXT("Drawing...%d, %d, %d"), int8(End.X), OverlappedInteractablesCount, bShouldTraceForInteractables);
+
+	if (OutHitResult.bBlockingHit) {
+		OutHitLocation = OutHitResult.Location;
+		return true;
+	}
+
+	return false;
 }

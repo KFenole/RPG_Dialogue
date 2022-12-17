@@ -6,7 +6,9 @@
 #include "Components/WidgetComponent.h"
 
 // Sets default values
-ADialogController::ADialogController()
+ADialogController::ADialogController():
+	DisplayName(FString(TEXT("Someone's Name"))),
+	DisplaySubtitle(FString(TEXT("Something interesting that they said.")))
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -15,10 +17,7 @@ ADialogController::ADialogController()
 	DialogUIWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("DialogUIWidget"));
 	DialogUIWidget->SetupAttachment(GetRootComponent());
 
-	DisplayName = FString(TEXT("Someone's Name"));
-	DisplaySubtitle = FString(TEXT("Something Interesting that they said."));
-
-
+	
 
 }
 
@@ -27,9 +26,9 @@ void ADialogController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (DialogUIWidget) {
+	if (DialogUIWidget)
 		DialogUIWidget->SetVisibility(false);
-	}
+	
 	//GetWorldTimerManager().SetTimer(TimeoutTimer, this, &ADialogController::TestFunction, 6.f, false, -1.0f);
 
 	
@@ -39,6 +38,12 @@ void ADialogController::TestFunction() {
 	DisplayName = FString(TEXT("Test Name"));
 
 	return;
+}
+
+void ADialogController::StartDialog(int ID)
+{
+	if (DialogUIWidget)
+		DialogUIWidget->SetVisibility(true);
 }
 
 // Called every frame

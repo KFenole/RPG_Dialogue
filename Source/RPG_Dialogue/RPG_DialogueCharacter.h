@@ -18,12 +18,16 @@ class ARPG_DialogueCharacter : public ACharacter
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
+
 public:
 	ARPG_DialogueCharacter();
 
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Input)
 	float TurnRateGamepad;
+
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
 
 protected:
 
@@ -56,10 +60,31 @@ protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	// End of APawn interface
 
+	void TraceForInteractables();
+
+	bool TraceFromViewport(FHitResult& OutHitResult, FVector& OutHitLocation);
+
+	bool TraceFromCharacter(FHitResult& OutHitResult, FVector& OutHitLocation);
+
 public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+private:
+	/* Whether we should trace for interactable objects */
+	bool bShouldTraceForInteractables;
+	/* Number of interactables we are overlapped with */
+	int8 OverlappedInteractablesCount;
+	/* The Interactable we were hitting last frame */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Interactables, meta = (AllowPrivateAccess = "true"))
+	class ATalkable_NPC* TraceHitInteractableLastFrame;
+	
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	//class ADialogController* CharacterDialogController;
+
+public:
+	void IncrementOverlappedInteractablesCount(int8 Value);
 };
 
