@@ -6,52 +6,57 @@
 #include "Components/WidgetComponent.h"
 
 // Sets default values
-ADialogController::ADialogController():
-	DisplayName(FString(TEXT("Someone's Name"))),
-	DisplaySubtitle(FString(TEXT("Something interesting that they said.")))
+UDialogController::UDialogController()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	//PrimaryActorTick.bCanEverTick = true;
 
+	
 	/* Setup the DialogUIWidget for code */
-	DialogUIWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("DialogUIWidget"));
-	DialogUIWidget->SetupAttachment(GetRootComponent());
-
+	//DialogUIWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("DialogUIWidget"));
+	//DialogUIWidget->SetupAttachment(GetRootComponent());
+	
 	
 
 }
 
 // Called when the game starts or when spawned
-void ADialogController::BeginPlay()
+void UDialogController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (DialogUIWidget)
-		DialogUIWidget->SetVisibility(false);
+	//if (DialogUIWidget)
+		//DialogUIWidget->SetVisibility(true);
 	
-	//GetWorldTimerManager().SetTimer(TimeoutTimer, this, &ADialogController::TestFunction, 6.f, false, -1.0f);
+	//GetWorldTimerManager().SetTimer(TimeoutTimer, this, &UDialogController::TestFunction, 6.f, false, -1.0f);
 
 	
 }
 
-void ADialogController::TestFunction() {
-	DisplayName = FString(TEXT("Test Name"));
+void UDialogController::TestFunction() {
+	//DisplayName = FString(TEXT("Test Name"));
 
 	return;
 }
 
-void ADialogController::StartDialog(int ID)
+void UDialogController::StartDialog(int ID)
 {
-	if (DialogUIWidget)
-		DialogUIWidget->SetVisibility(true);
+	//if (DialogUIWidget)
+		//DialogUIWidget->SetVisibility(true);
 }
 
+/*
+void UDialogController::SayHello() {
+	UE_LOG(LogTemp, Warning, TEXT("HELLO THERE"));
+}
+*/
+/*
 // Called every frame
-void ADialogController::Tick(float DeltaTime)
+void UDialogController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-}
+}*/
 
 
 

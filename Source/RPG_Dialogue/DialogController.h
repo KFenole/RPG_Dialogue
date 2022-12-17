@@ -7,13 +7,13 @@
 #include "DialogController.generated.h"
 
 UCLASS()
-class RPG_DIALOGUE_API ADialogController : public AActor
+class RPG_DIALOGUE_API UDialogController : public UActorComponent
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	ADialogController();
+	UDialogController();
 
 protected:
 	// Called when the game starts or when spawned
@@ -26,24 +26,20 @@ protected:
 
 public:	
 	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	//virtual void Tick(float DeltaTime) override;
 
 private:
 	/* Widget Containing Dialog UI*/
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Custom Properties", meta = (AllowPrivateAccess = "true"))
-	class UWidgetComponent* DialogUIWidget;
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Custom Properties", meta = (AllowPrivateAccess = "true"))
+	//class UWidgetComponent* DialogUIWidget;
 
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Display Properties", meta = (AllowPrivateAccess = "true"))
-	FString DisplayName;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Display Properties", meta = (AllowPrivateAccess = "true"))
-	FString DisplaySubtitle;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Properties", meta = (AllowPrivateAccess = "true"))
 	FTimerHandle TimeoutTimer;
 
-public:
-	FORCEINLINE UWidgetComponent* GetDialogWidget() const { return DialogUIWidget; }
+//public:
+	//FORCEINLINE UWidgetComponent* GetDialogWidget() const { return DialogUIWidget; }
+
+	//void SayHello();
 
 };

@@ -18,7 +18,9 @@
 //////////////////////////////////////////////////////////////////////////
 // ARPG_DialogueCharacter
 
-ARPG_DialogueCharacter::ARPG_DialogueCharacter()
+ARPG_DialogueCharacter::ARPG_DialogueCharacter() :
+	DisplayName(FString(TEXT("Someone's Name"))),
+	DisplaySubtitle(FString(TEXT("Something interesting that they said.")))
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
@@ -56,6 +58,10 @@ ARPG_DialogueCharacter::ARPG_DialogueCharacter()
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+
+	/* Setup the DialogUIWidget for code */
+	DialogUIWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("DialogUIWidget"));
+	DialogUIWidget->SetupAttachment(GetRootComponent());
 }
 
 void ARPG_DialogueCharacter::Tick(float DeltaTime)
@@ -139,6 +145,8 @@ void ARPG_DialogueCharacter::MoveRight(float Value)
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		// add movement in that direction
 		AddMovementInput(Direction, Value);
+
+		
 	}
 }
 
@@ -163,11 +171,13 @@ void ARPG_DialogueCharacter::TraceForInteractables()
 
 		if (TraceResult.bBlockingHit) {
 			ATalkable_NPC* HitInteractable = Cast<ATalkable_NPC>(TraceResult.GetActor());
-			if (HitInteractable /* && HitInteractable->GetPickupWidget()*/) {
+			if (HitInteractable /* && HitInteractable->GetDialogWidget()*/) {
 				UE_LOG(LogTemp, Warning, TEXT("Hit an interactable, %d, %d"), OverlappedInteractablesCount, bShouldTraceForInteractables);
 				//HitInteractable->GetWidget()->SetVisibility(true);
-				//if (CharacterDialogController) {
+				//if (CharacterDialogController && IsValid(CharacterDialogController)) {
 					//CharacterDialogController->GetDialogWidget()->SetVisibility(true);
+					//CharacterDialogController->SayHello();
+					//UE_LOG(LogTemp, Warning, TEXT("PIZZA"));
 				//}
 			}
 
@@ -177,6 +187,7 @@ void ARPG_DialogueCharacter::TraceForInteractables()
 				if (HitInteractable != TraceHitInteractableLastFrame) {
 					// We are hitting a different Interactable this frame from last frame, or Interactable is null
 					//TraceHitInteractableLastFrame->GetWidget()->SetVisibility(false);
+					//DialogUIWidget->SetVisibility(true);
 				}
 			}
 			// Store reference to HitItem for next frame

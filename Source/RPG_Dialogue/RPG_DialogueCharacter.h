@@ -73,6 +73,16 @@ public:
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
 private:
+	/* Widget Containing Dialog UI*/
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Custom Properties", meta = (AllowPrivateAccess = "true"))
+	class UWidgetComponent* DialogUIWidget;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Display Properties", meta = (AllowPrivateAccess = "true"))
+	FString DisplayName;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Display Properties", meta = (AllowPrivateAccess = "true"))
+	FString DisplaySubtitle;
+
 	/* Whether we should trace for interactable objects */
 	bool bShouldTraceForInteractables;
 	/* Number of interactables we are overlapped with */
@@ -81,7 +91,7 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Interactables, meta = (AllowPrivateAccess = "true"))
 	class ATalkable_NPC* TraceHitInteractableLastFrame;
 	
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Interactables, meta = (AllowPrivateAccess = "true"))
 	//class ADialogController* CharacterDialogController;
 
 public:
