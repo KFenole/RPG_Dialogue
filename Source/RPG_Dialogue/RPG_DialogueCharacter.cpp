@@ -62,6 +62,21 @@ ARPG_DialogueCharacter::ARPG_DialogueCharacter() :
 	/* Setup the DialogUIWidget for code */
 	DialogUIWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("DialogUIWidget"));
 	DialogUIWidget->SetupAttachment(GetRootComponent());
+
+	CharacterDialogController = CreateDefaultSubobject<UDialogController>(TEXT("DialogController"));
+	//CharacterDialogController->SetupAttachment(GetRootComponent());
+}
+
+// Called when the game starts or when spawned
+void ARPG_DialogueCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (DialogUIWidget)
+		DialogUIWidget->SetVisibility(false);
+
+
+
 }
 
 void ARPG_DialogueCharacter::Tick(float DeltaTime)
@@ -179,6 +194,9 @@ void ARPG_DialogueCharacter::TraceForInteractables()
 					//CharacterDialogController->SayHello();
 					//UE_LOG(LogTemp, Warning, TEXT("PIZZA"));
 				//}
+				if (DialogUIWidget)
+					DialogUIWidget->SetVisibility(true);
+				CharacterDialogController->SayHello();
 			}
 
 			

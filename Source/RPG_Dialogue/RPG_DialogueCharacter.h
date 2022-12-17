@@ -30,6 +30,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
 
 	/** Called for forwards/backward input */
 	void MoveForward(float Value);
@@ -88,11 +90,11 @@ private:
 	/* Number of interactables we are overlapped with */
 	int8 OverlappedInteractablesCount;
 	/* The Interactable we were hitting last frame */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Interactables, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interactables", meta = (AllowPrivateAccess = "true"))
 	class ATalkable_NPC* TraceHitInteractableLastFrame;
 	
-	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Interactables, meta = (AllowPrivateAccess = "true"))
-	//class ADialogController* CharacterDialogController;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interactables", meta = (AllowPrivateAccess = "true"))
+	class UDialogController* CharacterDialogController;
 
 public:
 	void IncrementOverlappedInteractablesCount(int8 Value);

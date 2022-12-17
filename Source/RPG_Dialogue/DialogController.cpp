@@ -6,7 +6,9 @@
 #include "Components/WidgetComponent.h"
 
 // Sets default values
-UDialogController::UDialogController()
+UDialogController::UDialogController() :
+	DisplayName(FString(TEXT("Someone's Name-Dialog"))),
+	DisplaySubtitle(FString(TEXT("Something interesting that they said.-Dialog")))
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	//PrimaryActorTick.bCanEverTick = true;
@@ -45,11 +47,11 @@ void UDialogController::StartDialog(int ID)
 		//DialogUIWidget->SetVisibility(true);
 }
 
-/*
+
 void UDialogController::SayHello() {
 	UE_LOG(LogTemp, Warning, TEXT("HELLO THERE"));
 }
-*/
+
 /*
 // Called every frame
 void UDialogController::Tick(float DeltaTime)

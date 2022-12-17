@@ -32,14 +32,18 @@ private:
 	/* Widget Containing Dialog UI*/
 	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Custom Properties", meta = (AllowPrivateAccess = "true"))
 	//class UWidgetComponent* DialogUIWidget;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Display Properties", meta = (AllowPrivateAccess = "true"))
+	FString DisplayName;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Display Properties", meta = (AllowPrivateAccess = "true"))
+	FString DisplaySubtitle;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Properties", meta = (AllowPrivateAccess = "true"))
 	FTimerHandle TimeoutTimer;
 
-//public:
+public:
 	//FORCEINLINE UWidgetComponent* GetDialogWidget() const { return DialogUIWidget; }
 
-	//void SayHello();
+	void SayHello();
 
 };
