@@ -18,9 +18,8 @@
 //////////////////////////////////////////////////////////////////////////
 // ARPG_DialogueCharacter
 
-ARPG_DialogueCharacter::ARPG_DialogueCharacter() :
-	DisplayName(FString(TEXT("Someone's Name"))),
-	DisplaySubtitle(FString(TEXT("Something interesting that they said.")))
+ARPG_DialogueCharacter::ARPG_DialogueCharacter():
+	bIsInInteraction(false)
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
@@ -110,6 +109,10 @@ void ARPG_DialogueCharacter::SetupPlayerInputComponent(class UInputComponent* Pl
 	// handle touch devices
 	PlayerInputComponent->BindTouch(IE_Pressed, this, &ARPG_DialogueCharacter::TouchStarted);
 	PlayerInputComponent->BindTouch(IE_Released, this, &ARPG_DialogueCharacter::TouchStopped);
+
+	// Interact
+	//PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &ARPG_DialogueCharacter::Interact);
+	PlayerInputComponent->BindAction("Interact", EInputEvent::IE_Released, this, &ARPG_DialogueCharacter::Interact);
 }
 
 void ARPG_DialogueCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)
@@ -124,19 +127,23 @@ void ARPG_DialogueCharacter::TouchStopped(ETouchIndex::Type FingerIndex, FVector
 
 void ARPG_DialogueCharacter::TurnAtRate(float Rate)
 {
-	// calculate delta for this frame from the rate information
-	AddControllerYawInput(Rate * TurnRateGamepad * GetWorld()->GetDeltaSeconds());
+	if (!bIsInInteraction) {
+		// calculate delta for this frame from the rate information
+		AddControllerYawInput(Rate * TurnRateGamepad * GetWorld()->GetDeltaSeconds());
+	}
 }
 
 void ARPG_DialogueCharacter::LookUpAtRate(float Rate)
 {
-	// calculate delta for this frame from the rate information
-	AddControllerPitchInput(Rate * TurnRateGamepad * GetWorld()->GetDeltaSeconds());
+	if (!bIsInInteraction) {
+		// calculate delta for this frame from the rate information
+		AddControllerPitchInput(Rate * TurnRateGamepad * GetWorld()->GetDeltaSeconds());
+	}
 }
 
 void ARPG_DialogueCharacter::MoveForward(float Value)
 {
-	if ((Controller != nullptr) && (Value != 0.0f))
+	if ((Controller != nullptr) && (Value != 0.0f) && !bIsInInteraction)
 	{
 		// find out which way is forward
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -150,7 +157,7 @@ void ARPG_DialogueCharacter::MoveForward(float Value)
 
 void ARPG_DialogueCharacter::MoveRight(float Value)
 {
-	if ( (Controller != nullptr) && (Value != 0.0f) )
+	if ( (Controller != nullptr) && (Value != 0.0f ) && !bIsInInteraction)
 	{
 		// find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -177,6 +184,7 @@ void ARPG_DialogueCharacter::IncrementOverlappedInteractablesCount(int8 Value)
 	}
 }
 
+
 void ARPG_DialogueCharacter::TraceForInteractables()
 {
 	if (bShouldTraceForInteractables) {
@@ -187,16 +195,10 @@ void ARPG_DialogueCharacter::TraceForInteractables()
 		if (TraceResult.bBlockingHit) {
 			ATalkable_NPC* HitInteractable = Cast<ATalkable_NPC>(TraceResult.GetActor());
 			if (HitInteractable /* && HitInteractable->GetDialogWidget()*/) {
-				UE_LOG(LogTemp, Warning, TEXT("Hit an interactable, %d, %d"), OverlappedInteractablesCount, bShouldTraceForInteractables);
 				//HitInteractable->GetWidget()->SetVisibility(true);
-				//if (CharacterDialogController && IsValid(CharacterDialogController)) {
-					//CharacterDialogController->GetDialogWidget()->SetVisibility(true);
-					//CharacterDialogController->SayHello();
-					//UE_LOG(LogTemp, Warning, TEXT("PIZZA"));
-				//}
-				if (DialogUIWidget)
-					DialogUIWidget->SetVisibility(true);
-				CharacterDialogController->SayHello();
+				
+				
+				//CharacterDialogController->SayHello();
 			}
 
 			
@@ -270,4 +272,32 @@ bool ARPG_DialogueCharacter::TraceFromCharacter(FHitResult& OutHitResult, FVecto
 	}
 
 	return false;
+}
+
+void ARPG_DialogueCharacter::Interact()
+{
+	// Check if there is an item we can interact with
+	if (IsValid(TraceHitInteractableLastFrame) && TraceHitInteractableLastFrame) {
+		// Display the Dialog UI
+		if (DialogUIWidget)
+			DialogUIWidget->SetVisibility(true);
+
+		// Tell the DialogController to start dialog session
+		if (CharacterDialogController && IsValid(CharacterDialogController)) {
+			CharacterDialogController->StartDialog(0);
+			bIsInInteraction = true;
+			//return true;
+		}
+	}
+
+}
+
+void ARPG_DialogueCharacter::EndInteraction()
+{
+	bIsInInteraction = false;
+	if (DialogUIWidget)
+		DialogUIWidget->SetVisibility(false);
+
+	// Relinquish camera and player control back to user
+	//...
 }

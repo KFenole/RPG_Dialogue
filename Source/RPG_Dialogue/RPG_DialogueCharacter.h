@@ -68,6 +68,9 @@ protected:
 
 	bool TraceFromCharacter(FHitResult& OutHitResult, FVector& OutHitLocation);
 
+	// Interacts with the TraceHitInteractableLastFrame NPC/Interactable
+	void Interact();
+
 public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
@@ -78,13 +81,8 @@ private:
 	/* Widget Containing Dialog UI*/
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Custom Properties", meta = (AllowPrivateAccess = "true"))
 	class UWidgetComponent* DialogUIWidget;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Display Properties", meta = (AllowPrivateAccess = "true"))
-	FString DisplayName;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Display Properties", meta = (AllowPrivateAccess = "true"))
-	FString DisplaySubtitle;
-
+	/* Whether this character is in a dialog/interaction*/
+	bool bIsInInteraction;
 	/* Whether we should trace for interactable objects */
 	bool bShouldTraceForInteractables;
 	/* Number of interactables we are overlapped with */
@@ -98,5 +96,7 @@ private:
 
 public:
 	void IncrementOverlappedInteractablesCount(int8 Value);
+
+	void EndInteraction();
 };
 

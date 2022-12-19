@@ -9,7 +9,8 @@
 #include "RPG_DialogueCharacter.h"
 
 // Sets default values
-ATalkable_NPC::ATalkable_NPC()
+ATalkable_NPC::ATalkable_NPC(): 
+	StartingDialogID(0)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
