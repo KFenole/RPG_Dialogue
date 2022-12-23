@@ -31,6 +31,10 @@ void ATalkable_NPC::BeginPlay()
 	// Setup Overlap Functions for AreaSphere
 	TalkableAreaSphere->OnComponentBeginOverlap.AddDynamic(this, &ATalkable_NPC::OnSphereOverlap);
 	TalkableAreaSphere->OnComponentEndOverlap.AddDynamic(this, &ATalkable_NPC::OnSphereEndOverlap);
+
+	if (TalkPromptWidget) {
+		TalkPromptWidget->SetVisibility(false);
+	}
 	
 }
 

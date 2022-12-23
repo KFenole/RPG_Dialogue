@@ -67,6 +67,15 @@ void UDialogController::StartDialog(int StartingID)
 	}
 }
 
+void UDialogController::DialogOption1Selected()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Dialog Option 1 Selected"));
+	// Can probably just reaccess AllDialog[] to get response instead if wanted
+	// Add any changes to characters variables (from choice)
+	// Should probably implement an OnDeck (or stack) for resposnes that have been selected before the NPC finsihes talking
+	PlayDialogue(Choice1ID); // << Choice1ID should just be changed to a pointer to the DialogResponseStruct
+}
+
 void UDialogController::PlayDialogue(int ID)
 {
 	// Read Dialogue w/ ID
@@ -98,7 +107,11 @@ void UDialogController::PlayDialogue(int ID)
 		}
 		else {// else -> For each item, check for criteria-> Set appropraite DisplayVariables
 			for (FDialogResponseData Response : *DialogResponseChoices) {
-
+				if (/* Response Criteria Met*/ true) {
+					DisplayChoice1Text = Response.PreviewText;
+				} else {
+					DisplayChoice1Text = "";
+				}
 			}
 		}
 		

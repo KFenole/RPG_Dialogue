@@ -45,4 +45,7 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interact Items", meta = (AllowPrivateAccess = "true"))
 	int StartingDialogID;
 
+public:
+	FORCEINLINE UWidgetComponent* GetInteractPromptWidget() const { return TalkPromptWidget; }
+
 };

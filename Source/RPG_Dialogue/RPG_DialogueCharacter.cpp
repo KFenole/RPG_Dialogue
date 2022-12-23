@@ -188,34 +188,40 @@ void ARPG_DialogueCharacter::IncrementOverlappedInteractablesCount(int8 Value)
 void ARPG_DialogueCharacter::TraceForInteractables()
 {
 	if (bShouldTraceForInteractables) {
+
 		FHitResult TraceResult;
 		FVector HitLocation;
 		TraceFromCharacter(TraceResult, HitLocation);
 
 		if (TraceResult.bBlockingHit) {
-			ATalkable_NPC* HitInteractable = Cast<ATalkable_NPC>(TraceResult.GetActor());
-			if (HitInteractable /* && HitInteractable->GetDialogWidget()*/) {
-				//HitInteractable->GetWidget()->SetVisibility(true);
-				
-				
-				//CharacterDialogController->SayHello();
-			}
+			UE_LOG(LogTemp, Warning, TEXT("We hit something"));
+			ATalkable_NPC* HitInteractable = Cast<ATalkable_NPC>(TraceResult.GetActor()); // Try to cast to interactable item
+			//UWidgetComponent* HitWidget = Cast<UWidgetComponent>(TraceResult.GetActor()); // If the interact prompt widget is blocking, cast and get owner
+			if (HitInteractable && HitInteractable->GetInteractPromptWidget()) {
+				// If we;re not already in interaction, display interact prompt
+				if (!bIsInInteraction)
+					HitInteractable->GetInteractPromptWidget()->SetVisibility(true);
+				UE_LOG(LogTemp, Warning, TEXT("We hit an interactable"))
 
-			
-			// We hit an Interactable last frame
-			if (TraceHitInteractableLastFrame) {
-				if (HitInteractable != TraceHitInteractableLastFrame) {
-					// We are hitting a different Interactable this frame from last frame, or Interactable is null
-					//TraceHitInteractableLastFrame->GetWidget()->SetVisibility(false);
-					//DialogUIWidget->SetVisibility(true);
-				}
+					//CharacterDialogController->SayHello();
+
+
+				// We hit an Interactable last frame
+					if (TraceHitInteractableLastFrame) {
+						if (HitInteractable != TraceHitInteractableLastFrame) {
+							// We are hitting a different Interactable this frame from last frame, or Interactable is null
+							TraceHitInteractableLastFrame->GetInteractPromptWidget()->SetVisibility(false);
+							//DialogUIWidget->SetVisibility(true);
+						}
+					}
+				// Store reference to HitItem for next frame
+				TraceHitInteractableLastFrame = HitInteractable;
 			}
-			// Store reference to HitItem for next frame
-			TraceHitInteractableLastFrame = HitInteractable;
 		}
 
 	} else if (TraceHitInteractableLastFrame) {
-		//
+		// no longer hitting anything so hide the visibility of last interact prompt
+		TraceHitInteractableLastFrame->GetInteractPromptWidget()->SetVisibility(false);
 	}
 }
 
@@ -276,8 +282,15 @@ bool ARPG_DialogueCharacter::TraceFromCharacter(FHitResult& OutHitResult, FVecto
 
 void ARPG_DialogueCharacter::Interact()
 {
+	UE_LOG(LogTemp, Warning, TEXT("Attempting to Interact"));
 	// Check if there is an item we can interact with
 	if (IsValid(TraceHitInteractableLastFrame) && TraceHitInteractableLastFrame) {
+		UE_LOG(LogTemp, Warning, TEXT("Interacting"));
+
+
+		// Hide the interact prompt now that we are actually interacting
+		TraceHitInteractableLastFrame->GetInteractPromptWidget()->SetVisibility(false);
+
 		// Display the Dialog UI
 		if (DialogUIWidget)
 			DialogUIWidget->SetVisibility(true);
@@ -297,6 +310,8 @@ void ARPG_DialogueCharacter::EndInteraction()
 	bIsInInteraction = false;
 	if (DialogUIWidget)
 		DialogUIWidget->SetVisibility(false);
+
+	
 
 	// Relinquish camera and player control back to user
 	//...

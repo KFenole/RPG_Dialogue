@@ -66,6 +66,9 @@ public:
 	// Called by character to start Dialog session
 	void StartDialog(int StartingID);
 
+	// Dialog Options Selected
+	void DialogOption1Selected();
+
 private:
 	// List of all dialog in loaded chunk
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Properties", meta = (AllowPrivateAccess = "true"))
@@ -86,6 +89,7 @@ private:
 	// The Text for Choice #1 to be displayed on the UI
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Display Properties", meta = (AllowPrivateAccess = "true"))
 	FString DisplayChoice1Text;
+	int Choice1ID;
 
 	// The Text for Choice #2 to be displayed on the UI
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Display Properties", meta = (AllowPrivateAccess = "true"))
