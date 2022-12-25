@@ -194,14 +194,12 @@ void ARPG_DialogueCharacter::TraceForInteractables()
 		TraceFromCharacter(TraceResult, HitLocation);
 
 		if (TraceResult.bBlockingHit) {
-			UE_LOG(LogTemp, Warning, TEXT("We hit something"));
 			ATalkable_NPC* HitInteractable = Cast<ATalkable_NPC>(TraceResult.GetActor()); // Try to cast to interactable item
 			//UWidgetComponent* HitWidget = Cast<UWidgetComponent>(TraceResult.GetActor()); // If the interact prompt widget is blocking, cast and get owner
 			if (HitInteractable && HitInteractable->GetInteractPromptWidget()) {
 				// If we;re not already in interaction, display interact prompt
 				if (!bIsInInteraction)
 					HitInteractable->GetInteractPromptWidget()->SetVisibility(true);
-				UE_LOG(LogTemp, Warning, TEXT("We hit an interactable"))
 
 					//CharacterDialogController->SayHello();
 
@@ -217,6 +215,9 @@ void ARPG_DialogueCharacter::TraceForInteractables()
 				// Store reference to HitItem for next frame
 				TraceHitInteractableLastFrame = HitInteractable;
 			}
+		} else if (TraceHitInteractableLastFrame) {
+			// no longer hitting anything so hide the visibility of last interact prompt
+			TraceHitInteractableLastFrame->GetInteractPromptWidget()->SetVisibility(false);
 		}
 
 	} else if (TraceHitInteractableLastFrame) {
@@ -269,7 +270,7 @@ bool ARPG_DialogueCharacter::TraceFromCharacter(FHitResult& OutHitResult, FVecto
 	FVector End = Start + CharacterForwardDirection * 500.f;
 
 	GetWorld()->LineTraceSingleByChannel(OutHitResult, Start, End, ECollisionChannel::ECC_Visibility);
-	DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 0.5f);
+	//DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 0.5f);
 	//UE_LOG(LogTemp, Warning, TEXT("Drawing...%d, %d, %d"), int8(End.X), OverlappedInteractablesCount, bShouldTraceForInteractables);
 
 	if (OutHitResult.bBlockingHit) {
@@ -282,10 +283,8 @@ bool ARPG_DialogueCharacter::TraceFromCharacter(FHitResult& OutHitResult, FVecto
 
 void ARPG_DialogueCharacter::Interact()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Attempting to Interact"));
-	// Check if there is an item we can interact with
-	if (IsValid(TraceHitInteractableLastFrame) && TraceHitInteractableLastFrame) {
-		UE_LOG(LogTemp, Warning, TEXT("Interacting"));
+	// Check if there is an item we can interact with, and if we have the option to interact
+	if (IsValid(TraceHitInteractableLastFrame) && TraceHitInteractableLastFrame->GetInteractPromptWidget()->IsWidgetVisible()) {
 
 
 		// Hide the interact prompt now that we are actually interacting

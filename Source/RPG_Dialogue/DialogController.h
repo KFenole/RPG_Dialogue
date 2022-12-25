@@ -40,8 +40,7 @@ public:
 	// Sets default values for this actor's properties
 	UDialogController();
 
-	UFUNCTION(BlueprintCallable)
-	void ImportAudioExample();
+	
 
 protected:
 	// Called when the game starts or when spawned
@@ -53,7 +52,11 @@ protected:
 	// Will play dialogue at ID and present dialog options
 	void PlayDialogue(int ID);
 
+	// Load Audio from file URLand play it
 	void LoadAndPlayAudio(FString AudioFileRelativeURL);
+
+	// Reset the Display Variables, should be run before playing new dialog
+	void ResetDialogDisplayVariables();
 
 	UFUNCTION()
 	void EndDialog();
@@ -67,7 +70,17 @@ public:
 	void StartDialog(int StartingID);
 
 	// Dialog Options Selected
+	UFUNCTION(BlueprintCallable)
 	void DialogOption1Selected();
+
+	UFUNCTION(BlueprintCallable)
+	void DialogOption2Selected();
+
+	UFUNCTION(BlueprintCallable)
+	void DialogOption3Selected();
+
+	UFUNCTION(BlueprintCallable)
+	void DialogOption4Selected();
 
 private:
 	// List of all dialog in loaded chunk
@@ -77,6 +90,8 @@ private:
 	// Whether we are in an active dialog session or not
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Properties", meta = (AllowPrivateAccess = "true"))
 	bool bIsDialogActive;
+
+	int CurrentDialogID;
 
 	// The Name to be displayed on the UI
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Display Properties", meta = (AllowPrivateAccess = "true"))
@@ -94,14 +109,17 @@ private:
 	// The Text for Choice #2 to be displayed on the UI
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Display Properties", meta = (AllowPrivateAccess = "true"))
 	FString DisplayChoice2Text;
+	int Choice2ID;
 
 	// The Text for Choice #3 to be displayed on the UI
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Display Properties", meta = (AllowPrivateAccess = "true"))
 	FString DisplayChoice3Text;
+	int Choice3ID;
 
 	// The Text for Choice #4 to be displayed on the UI
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Display Properties", meta = (AllowPrivateAccess = "true"))
 	FString DisplayChoice4Text;
+	int Choice4ID;
 
 	// Timer for moving to next dialogue/exiting, set to the amount of FDialogData->AudioDuration
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Custom Properties", meta = (AllowPrivateAccess = "true"))
@@ -114,6 +132,8 @@ private:
 	// Reads (from disk) and Plays Audio files at runtime
 	UPROPERTY()
 	class URuntimeAudioImporterLibrary* RuntimeAudioImporter;
+
+	class UAudioComponent* DialogAudioPlayer;
 
 public:
 	//FORCEINLINE UWidgetComponent* GetDialogWidget() const { return DialogUIWidget; }
