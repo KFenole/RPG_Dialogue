@@ -9,7 +9,7 @@ public class RPG_Dialogue : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay", "UMG", "RuntimeAudioImporter" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay", "UMG", "RuntimeAudioImporter", "XmlParser" });
 
 		//PublicIncludePaths.AddRange(new string[] { "Plugins/RuntimeAudioImporter/Source/RuntimeAudioImporter/Public" });
 		//PublicIncludePaths.Add(Path.Combine("Plugins/RuntimeAudioImporter", "/Source/RuntimeAudioImporter/Public"));

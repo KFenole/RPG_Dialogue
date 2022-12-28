@@ -41,6 +41,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interact Items", meta = (AllowPrivateAccess = "true"))
 	class USphereComponent* TalkableAreaSphere;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interact Items", meta = (AllowPrivateAccess = "true"))
+	bool bIsPlayerInInteractSphere;
+
 	/* The ID of the Dialogue to be used when starting a conversation/interaction with this NPC */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interact Items", meta = (AllowPrivateAccess = "true"))
 	int StartingDialogID;

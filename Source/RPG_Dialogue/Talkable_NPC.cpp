@@ -44,6 +44,7 @@ void ATalkable_NPC::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AA
 		ARPG_DialogueCharacter* PlayerCharacter = Cast<ARPG_DialogueCharacter>(OtherActor);
 		if (PlayerCharacter) { // Player Character Overlapped
 			PlayerCharacter->IncrementOverlappedInteractablesCount(1);
+			bIsPlayerInInteractSphere = true;
 		}
 	}
 }
@@ -54,6 +55,7 @@ void ATalkable_NPC::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent,
 		ARPG_DialogueCharacter* PlayerCharacter = Cast<ARPG_DialogueCharacter>(OtherActor);
 		if (PlayerCharacter) { // Player Character End Overlapped
 			PlayerCharacter->IncrementOverlappedInteractablesCount(-1);
+			bIsPlayerInInteractSphere = false;
 		}
 	}
 }

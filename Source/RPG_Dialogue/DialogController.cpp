@@ -10,6 +10,7 @@
 #include "GameFramework/Actor.h"
 
 #include "Components/AudioComponent.h"
+#include "XmlFile.h"
 
 #include "RPG_DialogueCharacter.h"
 
@@ -20,13 +21,7 @@ UDialogController::UDialogController() :
 	DisplaySubtitle(FString(TEXT("Something interesting that they said.-Dialog"))),
 	bIsDialogActive(false)
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	//PrimaryActorTick.bCanEverTick = true;
 
-	
-	/* Setup the DialogUIWidget for code */
-	//DialogUIWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("DialogUIWidget"));
-	//DialogUIWidget->SetupAttachment(GetRootComponent());
 	
 	DialogAudioPlayer = CreateDefaultSubobject<UAudioComponent>(TEXT("DialogAudioPlayer"));
 
@@ -52,68 +47,82 @@ void UDialogController::BeginPlay()
 
 void UDialogController::LoadDialogData(FString ChunkID)
 {
-	// Temp for testing
-	// Dailog 0
-	struct FDialogData TestDialog0;
-	TestDialog0.SpeakerName = "NPC # 1";
-	TestDialog0.FullText = "Ah it is good to see you!";
-	TestDialog0.ID = 0;
-	TArray<FDialogResponseData> Responses;
-	TestDialog0.RelativeAudioURL = "eyes_on_me.wav";
-	TestDialog0.AudioDuration = 5.f;
+	// Load the dialog file, and check if valid
+	FXmlFile ImportedFile(TEXT("C:/dialog.xml"), EConstructMethod::ConstructFromFile); // <-- Currently using root directory for convenience
+	if (!ImportedFile.IsValid()) {
+		FString err = ImportedFile.GetLastError();
+		UE_LOG(LogTemp, Error, TEXT("%s"), *err);
+		UE_LOG(LogTemp, Error, TEXT("FAILED TO LOAD DIALOG FILE"));
+		return;
+	}
+	FXmlNode* FileRoot = ImportedFile.GetRootNode();
+	FString RootTag = FileRoot->GetTag();
+	
+	// Get all the dialog nodes
+	TArray<FXmlNode*>DialogNodes = FileRoot->GetChildrenNodes();
+	// Go through each dialog node
+	for (FXmlNode* dialogNode : DialogNodes) {
+		// This Node's Dialog to be stored
+		struct FDialogData Dialog;
 
-	// Response 0
-	struct FDialogResponseData TDR0_0;
-	TDR0_0.PreviewText = "Hello There";
-	TDR0_0.DialogFullID = 1;
+		// Go through the data (id, text, responses, etc.) in each of the dialog nodes
+		TArray<FXmlNode*>ChildNodes = dialogNode->GetChildrenNodes();
+		for (FXmlNode* childNode : ChildNodes) {
+			FString tag = childNode->GetTag();
+			FString Content = childNode->GetContent();
 
-	// Dialog 1 (Response 0)
-	struct FDialogData TestDialog1;
-	TestDialog1.SpeakerName = "Player";
-	TestDialog1.FullText = "Hey, good to see you too!";
-	TestDialog1.ID = 1;
-	TArray<FDialogResponseData> EmptyResponses;
-	TestDialog1.ResponseChoices = EmptyResponses;
-	TestDialog1.RelativeAudioURL = "eyes_on_me.wav";
-	TestDialog1.AudioDuration = 5.f;
+			if (tag == "ID") {
+				int DialogID = FCString::Atoi(*Content);
+				Dialog.ID = DialogID;
+			}
+			else if (tag == "SPEAKER") {
+				Dialog.SpeakerName = Content;
+			}
+			else if (tag == "FULL_TEXT") {
+				Dialog.FullText = Content;
+			}
+			else if (tag == "AUDIO_DURATION") {
+				float DialogDuration = FCString::Atof(*Content);
+				Dialog.AudioDuration = DialogDuration;
+			}
+			else if (tag == "RELATIVE_AUIDO_URL") {
+				Dialog.RelativeAudioURL = Content;
+			}
+			else if (tag == "RESPONSES") {
+				// Load Responses
+				TArray<FDialogResponseData> DialogResponses;
+				TArray<FXmlNode*> ResponseNodes = childNode->GetChildrenNodes();
+				// Iterate through each response
+				for (FXmlNode* ChoiceNode : ResponseNodes) {
+					TArray<FXmlNode*> ChoiceDataNodes = ChoiceNode->GetChildrenNodes();
+					// Create the response and populate data
+					struct FDialogResponseData DialogResponse;
+					for (FXmlNode* ChoiceChildNode : ChoiceDataNodes) {
+						FString ChoiceTag = ChoiceChildNode->GetTag();
+						FString ChoiceContent = ChoiceChildNode->GetContent();
 
-	// Response 1
-	struct FDialogResponseData TDR0_1;
-	TDR0_1.PreviewText = "Goodbye";
-	TDR0_1.DialogFullID = 2;
-
-	// Dialog 2 (Response 1)
-	struct FDialogData TestDialog2;
-	TestDialog2.SpeakerName = "Player";
-	TestDialog2.FullText = "See ya!";
-	TestDialog2.ID = 2;
-	TestDialog2.ResponseChoices = EmptyResponses;
-	TestDialog2.RelativeAudioURL = "eyes_on_me.wav";
-	TestDialog2.AudioDuration = 1.f;
-
-	// Response 2
-	struct FDialogResponseData TDR0_2;
-	TDR0_2.PreviewText = "Pizza Pie";
-	TDR0_2.DialogFullID = 0;
-
-
-	// Add to data array
-	Responses.EmplaceAt(0, TDR0_0);
-	Responses.EmplaceAt(1, TDR0_1);
-	Responses.EmplaceAt(2, TDR0_2);
-
-	TestDialog0.ResponseChoices = Responses;
-
-	AllDialog.EmplaceAt(TestDialog0.ID, TestDialog0);
-	AllDialog.EmplaceAt(TestDialog1.ID, TestDialog1);
-	AllDialog.EmplaceAt(TestDialog2.ID, TestDialog2);
+						if (ChoiceTag == "PREVIEW") {
+							DialogResponse.PreviewText = ChoiceContent;
+						}
+						else if (ChoiceTag == "ID") {
+							int FullDialogID = FCString::Atoi(*ChoiceContent);
+							DialogResponse.DialogFullID = FullDialogID;
+						}
+					}
+					DialogResponses.Emplace(DialogResponse);
+				}
+				Dialog.ResponseChoices = DialogResponses;
+			}
+		}
+		// Add to global dialog
+		AllDialog.EmplaceAt(Dialog.ID, Dialog);
+	}
 }
 
 void UDialogController::StartDialog(int StartingID)
 {
 	if (!bIsDialogActive) {
-		//ImportAudioExample();
-		PlayDialogue(0);
+		PlayDialogue(StartingID);
 		bIsDialogActive = true;
 	}
 }
@@ -169,6 +178,10 @@ void UDialogController::PlayDialogue(int ID)
 	ResetDialogDisplayVariables();
 	CurrentDialogID = ID;
 	// Read Dialogue w/ ID
+	if (!AllDialog.IsValidIndex(ID)) {
+		UE_LOG(LogTemp, Error, TEXT("%d is not a valid dialog id!"));
+		return;
+	}
 	FDialogData* CurrentDialog = &AllDialog[ID];
 	if (CurrentDialog) {
 		// Set DisplaySpeaker and DisplaySubtitle to "SpeakerName" and "Text"
@@ -195,6 +208,11 @@ void UDialogController::PlayDialogue(int ID)
 		else if (NumResponses == 1) {
 			//Wait for this to end, then run next dialog
 			//  Set Timer with delegate to pass paramter into PlayDialog for next Dialog ID
+			FTimerDelegate TimerDelegate;
+			FDialogResponseData* OnlyResponse = &(*DialogResponseChoices)[0];
+			TimerDelegate.BindUObject(this, &UDialogController::PlayDialogue, OnlyResponse->DialogFullID);
+			GetWorld()->GetTimerManager().SetTimer(DialogTimer, TimerDelegate, CurrentDialog->AudioDuration, false, -1.0f);
+
 		}
 		else {// else -> For each item, check for criteria-> Set appropraite DisplayVariables
 			uint8 ResponseNumber = 0;
@@ -316,41 +334,4 @@ void UDialogController::SayHello() {
 	//UE_LOG(LogTemp, Warning, TEXT("HELLO THERE"));
 	
 }
-
-/*
-void UDialogController::ImportAudioExample()
-{
-	RuntimeAudioImporter = URuntimeAudioImporterLibrary::CreateRuntimeAudioImporter();
-
-	if (!IsValid(RuntimeAudioImporter))
-	{
-		UE_LOG(LogTemp, Error, TEXT("Failed to create audio importer"));
-		return;
-	}
-
-	RuntimeAudioImporter->OnProgressNative.AddWeakLambda(this, [](int32 Percentage)
-		{
-			UE_LOG(LogTemp, Log, TEXT("Audio importing percentage: %d"), Percentage);
-		});
-
-	RuntimeAudioImporter->OnResultNative.AddWeakLambda(this, [this](URuntimeAudioImporterLibrary* Importer, UImportedSoundWave* ImportedSoundWave, ETranscodingStatus Status)
-		{
-			if (Status == ETranscodingStatus::SuccessfulImport)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Successfully imported audio with sound wave %s"), *ImportedSoundWave->GetName());
-				// Here you can handle ImportedSoundWave playback, like "UGameplayStatics::PlaySound2D(GetWorld(), ImportedSoundWave);"
-				UGameplayStatics::PlaySound2D(GetWorld(), ImportedSoundWave);
-			}
-			else
-			{
-				UE_LOG(LogTemp, Error, TEXT("Failed to import audio"));
-			}
-
-			RuntimeAudioImporter = nullptr;
-		});
-
-	RuntimeAudioImporter->ImportAudioFromFile(TEXT("C:/Eyes_on_me.wav"), EAudioFormat::Auto);
-}
-
-*/
 
