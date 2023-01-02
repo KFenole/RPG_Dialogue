@@ -61,8 +61,6 @@ protected:
 	UFUNCTION()
 	void EndDialog();
 
-	UFUNCTION()
-	void TestFunction();
 
 
 public:	
@@ -137,7 +135,5 @@ private:
 
 public:
 	//FORCEINLINE UWidgetComponent* GetDialogWidget() const { return DialogUIWidget; }
-
-	void SayHello();
 
 };

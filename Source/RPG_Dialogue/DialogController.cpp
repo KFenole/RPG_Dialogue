@@ -133,6 +133,7 @@ void UDialogController::DialogOption1Selected()
 		UE_LOG(LogTemp, Warning, TEXT("Dialog Option 1 Selected"));
 		// Add any changes to characters variables (from choice)
 		// Should probably implement an OnDeck (or stack) for resposnes that have been selected before the NPC finsihes talking
+		GetWorld()->GetTimerManager().ClearTimer(TimeoutTimer);
 
 		PlayDialogue(Choice1ID);
 	}
@@ -144,6 +145,7 @@ void UDialogController::DialogOption2Selected()
 		UE_LOG(LogTemp, Warning, TEXT("Dialog Option 2 Selected"));
 		// Add any changes to characters variables (from choice)
 		// Should probably implement an OnDeck (or stack) for resposnes that have been selected before the NPC finsihes talking
+		GetWorld()->GetTimerManager().ClearTimer(TimeoutTimer);
 
 		PlayDialogue(Choice2ID);
 	}
@@ -155,6 +157,7 @@ void UDialogController::DialogOption3Selected()
 		UE_LOG(LogTemp, Warning, TEXT("Dialog Option 3 Selected"));
 		// Add any changes to characters variables (from choice)
 		// Should probably implement an OnDeck (or stack) for resposnes that have been selected before the NPC finsihes talking
+		GetWorld()->GetTimerManager().ClearTimer(TimeoutTimer);
 
 		PlayDialogue(Choice3ID);
 	}
@@ -166,6 +169,7 @@ void UDialogController::DialogOption4Selected()
 		UE_LOG(LogTemp, Warning, TEXT("Dialog Option 4 Selected"));
 		// Add any changes to characters variables (from choice)
 		// Should probably implement an OnDeck (or stack) for resposnes that have been selected before the NPC finsihes talking
+		GetWorld()->GetTimerManager().ClearTimer(TimeoutTimer);
 
 		PlayDialogue(Choice4ID);
 	}
@@ -206,7 +210,7 @@ void UDialogController::PlayDialogue(int ID)
 
 		} // else if x1 item -> Queue Item for next dialog
 		else if (NumResponses == 1) {
-			//Wait for this to end, then run next dialog
+			//Wait for this to end, then run next dialog (from only option)
 			//  Set Timer with delegate to pass paramter into PlayDialog for next Dialog ID
 			FTimerDelegate TimerDelegate;
 			FDialogResponseData* OnlyResponse = &(*DialogResponseChoices)[0];
@@ -238,6 +242,12 @@ void UDialogController::PlayDialogue(int ID)
 					
 				}
 			}
+
+			// TIMEOUT, if player takes too long, Set Timer with delegate to pass paramter into PlayDialog for next Dialog ID
+			// Need to load this from the file now
+			FTimerDelegate TimerDelegate;
+			TimerDelegate.BindUObject(this, &UDialogController::PlayDialogue, 6);
+			GetWorld()->GetTimerManager().SetTimer(TimeoutTimer, TimerDelegate, CurrentDialog->AudioDuration + 3.f, false, -1.0f);
 		}
 		
 			
@@ -320,18 +330,3 @@ void UDialogController::EndDialog()
 	bIsDialogActive = false;
 
 }
-
-void UDialogController::TestFunction() {
-	//DisplayName = FString(TEXT("Test Name"));
-
-	return;
-}
-
-
-
-
-void UDialogController::SayHello() {
-	//UE_LOG(LogTemp, Warning, TEXT("HELLO THERE"));
-	
-}
-

@@ -10,7 +10,9 @@
 
 // Sets default values
 ATalkable_NPC::ATalkable_NPC(): 
-	StartingDialogID(0)
+	StartingDialogID(0),
+	//bIsPlayerInInteractSphere(false),
+	bCanPlayerInteractWith(false)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -33,7 +35,7 @@ void ATalkable_NPC::BeginPlay()
 	TalkableAreaSphere->OnComponentEndOverlap.AddDynamic(this, &ATalkable_NPC::OnSphereEndOverlap);
 
 	if (TalkPromptWidget) {
-		TalkPromptWidget->SetVisibility(false);
+		TalkPromptWidget->SetVisibility(true);
 	}
 	
 }
@@ -43,6 +45,8 @@ void ATalkable_NPC::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AA
 	if (OtherActor) {
 		ARPG_DialogueCharacter* PlayerCharacter = Cast<ARPG_DialogueCharacter>(OtherActor);
 		if (PlayerCharacter) { // Player Character Overlapped
+			UE_LOG(LogTemp, Warning, TEXT("Player overlapped begin"));
+
 			PlayerCharacter->IncrementOverlappedInteractablesCount(1);
 			bIsPlayerInInteractSphere = true;
 		}
@@ -54,6 +58,8 @@ void ATalkable_NPC::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent,
 	if (OtherActor) {
 		ARPG_DialogueCharacter* PlayerCharacter = Cast<ARPG_DialogueCharacter>(OtherActor);
 		if (PlayerCharacter) { // Player Character End Overlapped
+			UE_LOG(LogTemp, Warning, TEXT("Player overlapped end"));
+
 			PlayerCharacter->IncrementOverlappedInteractablesCount(-1);
 			bIsPlayerInInteractSphere = false;
 		}

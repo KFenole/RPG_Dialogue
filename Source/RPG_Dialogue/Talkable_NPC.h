@@ -41,8 +41,13 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interact Items", meta = (AllowPrivateAccess = "true"))
 	class USphereComponent* TalkableAreaSphere;
 
+	/* True when the player is in the interact sphere */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interact Items", meta = (AllowPrivateAccess = "true"))
 	bool bIsPlayerInInteractSphere;
+
+	/* True when the player can interact with this NPC */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interact Items", meta = (AllowPrivateAccess = "true"))
+	bool bCanPlayerInteractWith;
 
 	/* The ID of the Dialogue to be used when starting a conversation/interaction with this NPC */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interact Items", meta = (AllowPrivateAccess = "true"))
@@ -50,5 +55,9 @@ private:
 
 public:
 	FORCEINLINE UWidgetComponent* GetInteractPromptWidget() const { return TalkPromptWidget; }
+
+	FORCEINLINE int GetStartingDialogID() const { return StartingDialogID; }
+
+	FORCEINLINE void SetCanInteractWithFlag(bool canInteractWith) { bCanPlayerInteractWith = canInteractWith; }
 
 };
